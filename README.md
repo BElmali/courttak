@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Courttak
 
-## Getting Started
+QR ile kort başlatılan, kamera ile kayıt alınan, CourtCheck-benzeri analizlerden beslenen tenis/padel platformu.
 
-First, run the development server:
+## Hızlı başlangıç
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uygulama: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Mock analiz demo API: [http://localhost:3000/api/analysis/demo](http://localhost:3000/api/analysis/demo)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Yapı
 
-## Learn More
+```
+src/
+  app/(player)/          # Oyuncu ekranları (CourtDemo taşındı)
+  app/api/analysis/      # AnalysisProvider demo endpoint
+  components/            # UI
+  lib/analysis/          # AnalysisProvider + MockProvider
+  lib/supabase/          # Client helpers
+  types/                 # Shared contracts
+supabase/migrations/     # Schema + RLS + storage buckets
+legacy/CourtDemo.jsx     # Orijinal prototip
+```
 
-To learn more about Next.js, take a look at the following resources:
+## AnalysisProvider
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`src/lib/analysis` altında pluggable adapter:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `AnalysisProvider` arayüzü
+- `MockAnalysisProvider` (MVP / UI)
+- `normalizeAnalytics()` — Zod ile normalize sözleşme
+- CourtCheck henüz yok; `getAnalysisProvider()` içine eklenecek
 
-## Deploy on Vercel
+## Supabase
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Migration’lar:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. `20260316000001_init_schema.sql`
+2. `20260316000002_rls_policies.sql`
+3. `20260316000003_storage_buckets.sql`
+
+```bash
+npx supabase db push
+# veya SQL editor’dan sırayla uygula
+```
+
+## Sonraki adımlar
+
+- QR claim + edge agent protokolü
+- Auth (Supabase Auth)
+- CourtCheck provider adapter
+- Gerçek video upload pipeline
